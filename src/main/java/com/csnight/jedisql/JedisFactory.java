@@ -1,0 +1,155 @@
+package com.csnight.jedisql;
+
+import com.csnight.jedisql.exceptions.InvalidURIException;
+import com.csnight.jedisql.exceptions.JedisException;
+import com.csnight.jedisql.util.JedisURIHelper;
+import org.apache.commons.pool2.PooledObject;
+import org.apache.commons.pool2.PooledObjectFactory;
+import org.apache.commons.pool2.impl.DefaultPooledObject;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLSocketFactory;
+import java.net.URI;
+import java.util.concurrent.atomic.AtomicReference;
+
+/**
+ * PoolableObjectFactory custom impl.
+ */
+class JedisFactory implements PooledObjectFactory<JediSQL> {
+    private final AtomicReference<HostAndPort> hostAndPort = new AtomicReference<HostAndPort>();
+    private final int connectionTimeout;
+    private final int soTimeout;
+    private final String password;
+    private final int database;
+    private final String clientName;
+    private final boolean ssl;
+    private final SSLSocketFactory sslSocketFactory;
+    private final SSLParameters sslParameters;
+    private final HostnameVerifier hostnameVerifier;
+
+    JedisFactory(final String host, final int port, final int connectionTimeout,
+                 final int soTimeout, final String password, final int database, final String clientName) {
+        this(host, port, connectionTimeout, soTimeout, password, database, clientName,
+                false, null, null, null);
+    }
+
+    JedisFactory(final String host, final int port, final int connectionTimeout,
+                 final int soTimeout, final String password, final int database, final String clientName,
+                 final boolean ssl, final SSLSocketFactory sslSocketFactory, final SSLParameters sslParameters,
+                 final HostnameVerifier hostnameVerifier) {
+        this.hostAndPort.set(new HostAndPort(host, port));
+        this.connectionTimeout = connectionTimeout;
+        this.soTimeout = soTimeout;
+        this.password = password;
+        this.database = database;
+        this.clientName = clientName;
+        this.ssl = ssl;
+        this.sslSocketFactory = sslSocketFactory;
+        this.sslParameters = sslParameters;
+        this.hostnameVerifier = hostnameVerifier;
+    }
+
+    JedisFactory(final URI uri, final int connectionTimeout, final int soTimeout,
+                 final String clientName) {
+        this(uri, connectionTimeout, soTimeout, clientName, null, null, null);
+    }
+
+    JedisFactory(final URI uri, final int connectionTimeout, final int soTimeout,
+                 final String clientName, final SSLSocketFactory sslSocketFactory,
+                 final SSLParameters sslParameters, final HostnameVerifier hostnameVerifier) {
+        if (!JedisURIHelper.isValid(uri)) {
+            throw new InvalidURIException(String.format(
+                    "Cannot open Redis connection due invalid URI. %s", uri.toString()));
+        }
+
+        this.hostAndPort.set(new HostAndPort(uri.getHost(), uri.getPort()));
+        this.connectionTimeout = connectionTimeout;
+        this.soTimeout = soTimeout;
+        this.password = JedisURIHelper.getPassword(uri);
+        this.database = JedisURIHelper.getDBIndex(uri);
+        this.clientName = clientName;
+        this.ssl = JedisURIHelper.isRedisSSLScheme(uri);
+        this.sslSocketFactory = sslSocketFactory;
+        this.sslParameters = sslParameters;
+        this.hostnameVerifier = hostnameVerifier;
+    }
+
+    public void setHostAndPort(final HostAndPort hostAndPort) {
+        this.hostAndPort.set(hostAndPort);
+    }
+
+    @Override
+    public void activateObject(PooledObject<JediSQL> pooledJedis) throws Exception {
+        final BinaryJedis jedis = pooledJedis.getObject();
+        if (jedis.getDB() != database) {
+            jedis.select(database);
+        }
+
+    }
+
+    @Override
+    public void destroyObject(PooledObject<JediSQL> pooledJedis) throws Exception {
+        final BinaryJedis jedis = pooledJedis.getObject();
+        if (jedis.isConnected()) {
+            try {
+                try {
+                    jedis.quit();
+                } catch (Exception e) {
+                }
+                jedis.disconnect();
+            } catch (Exception e) {
+
+            }
+        }
+
+    }
+
+    @Override
+    public PooledObject<JediSQL> makeObject() throws Exception {
+        final HostAndPort hostAndPort = this.hostAndPort.get();
+        final JediSQL jediSQL = new JediSQL(hostAndPort.getHost(), hostAndPort.getPort(), connectionTimeout,
+                soTimeout, ssl, sslSocketFactory, sslParameters, hostnameVerifier);
+
+        try {
+            jediSQL.connect();
+            if (password != null) {
+                jediSQL.auth(password);
+            }
+            if (database != 0) {
+                jediSQL.select(database);
+            }
+            if (clientName != null) {
+                jediSQL.clientSetname(clientName);
+            }
+        } catch (JedisException je) {
+            jediSQL.close();
+            throw je;
+        }
+
+        return new DefaultPooledObject<JediSQL>(jediSQL);
+
+    }
+
+    @Override
+    public void passivateObject(PooledObject<JediSQL> pooledJedis) throws Exception {
+        // TODO maybe should select db 0? Not sure right now.
+    }
+
+    @Override
+    public boolean validateObject(PooledObject<JediSQL> pooledJedis) {
+        final BinaryJedis jedis = pooledJedis.getObject();
+        try {
+            HostAndPort hostAndPort = this.hostAndPort.get();
+
+            String connectionHost = jedis.getClient().getHost();
+            int connectionPort = jedis.getClient().getPort();
+
+            return hostAndPort.getHost().equals(connectionHost)
+                    && hostAndPort.getPort() == connectionPort && jedis.isConnected()
+                    && jedis.ping().equals("PONG");
+        } catch (final Exception e) {
+            return false;
+        }
+    }
+}
