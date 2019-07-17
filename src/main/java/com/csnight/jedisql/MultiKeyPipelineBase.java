@@ -9,9 +9,153 @@ import java.util.Set;
 
 public abstract class MultiKeyPipelineBase extends PipelineBase implements
         MultiKeyBinaryRedisPipeline, MultiKeyCommandsPipeline, ClusterPipeline,
-        BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline, BasicRedisPipeline {
+        BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline, BasicRedisPipeline, RedisqlPipeline {
 
     protected Client client = null;
+
+    @Override
+    public Response<String> create_db(String db) {
+        client.create_db(db);
+        return getResponse(BuilderFactory.STRING);
+    }
+
+    @Override
+    public Response<String> create_db(String db, String path) {
+        client.create_db(db, path);
+        return getResponse(BuilderFactory.STRING);
+    }
+
+    @Override
+    public Response<List<Object>> exec(String db, String sql) {
+        client.exec(db, sql);
+        return getResponse(BuilderFactory.OBJECT_LIST);
+    }
+
+    @Override
+    public Response<List<Object>> exec_now(String db, String query) {
+        client.exec_now(db, query);
+        return getResponse(BuilderFactory.OBJECT_LIST);
+    }
+
+    @Override
+    public Response<List<Object>> query(String db, String query) {
+        client.query(db, query);
+        return getResponse(BuilderFactory.OBJECT_LIST);
+    }
+
+    @Override
+    public Response<List<Object>> query_now(String db, String query) {
+        client.query_now(db, query);
+        return getResponse(BuilderFactory.OBJECT_LIST);
+    }
+
+    @Override
+    public Response<List<Object>> query_into(String stream, String db, String query) {
+        client.query_into(stream, db, query);
+        return getResponse(BuilderFactory.OBJECT_LIST);
+    }
+
+    @Override
+    public Response<List<Object>> query_into_now(String stream, String db, String query) {
+        client.query_into_now(stream, db, query);
+        return getResponse(BuilderFactory.OBJECT_LIST);
+    }
+
+    @Override
+    public Response<String> create_statement(String db, String stmt_name, String stmt_query) {
+        client.create_statement(db, stmt_name, stmt_query);
+        return getResponse(BuilderFactory.STRING);
+    }
+
+    @Override
+    public Response<String> create_statement_now(String db, String stmt_name, String stmt_query) {
+        client.create_statement_now(db, stmt_name, stmt_query);
+        return getResponse(BuilderFactory.STRING);
+    }
+
+    @Override
+    public Response<List<Object>> exec_statement(String... args) {
+        client.exec_statement(args);
+        return getResponse(BuilderFactory.OBJECT_LIST);
+    }
+
+    @Override
+    public Response<List<Object>> exec_statement_now(String... args) {
+        client.exec_statement_now(args);
+        return getResponse(BuilderFactory.OBJECT_LIST);
+    }
+
+    @Override
+    public Response<List<Object>> query_statement(String... args) {
+        client.query_statement(args);
+        return getResponse(BuilderFactory.OBJECT_LIST);
+    }
+
+    @Override
+    public Response<List<Object>> query_statement_now(String... args) {
+        client.query_statement_now(args);
+        return getResponse(BuilderFactory.OBJECT_LIST);
+    }
+
+    @Override
+    public Response<List<Object>> query_statement_into(String... args) {
+        client.query_statement_into(args);
+        return getResponse(BuilderFactory.OBJECT_LIST);
+    }
+
+    @Override
+    public Response<List<Object>> query_statement_into_now(String... args) {
+        client.query_statement_into_now(args);
+        return getResponse(BuilderFactory.OBJECT_LIST);
+    }
+
+    @Override
+    public Response<String> delete_statement(String db, String stmt_name) {
+        client.delete_statement(db, stmt_name);
+        return getResponse(BuilderFactory.STRING);
+    }
+
+    @Override
+    public Response<String> delete_statement_now(String db, String stmt_name) {
+        client.delete_statement_now(db, stmt_name);
+        return getResponse(BuilderFactory.STRING);
+    }
+
+    @Override
+    public Response<String> update_statement(String db, String stmt_name, String stmt_query) {
+        client.update_statement(db, stmt_name, stmt_query);
+        return getResponse(BuilderFactory.STRING);
+    }
+
+    @Override
+    public Response<String> update_statement_now(String db, String stmt_name, String stmt_query) {
+        client.update_statement_now(db, stmt_name, stmt_query);
+        return getResponse(BuilderFactory.STRING);
+    }
+
+    @Override
+    public Response<String> copy(String db1, String db2) {
+        client.copy(db1, db2);
+        return getResponse(BuilderFactory.STRING);
+    }
+
+    @Override
+    public Response<String> copy_now(String db1, String db2) {
+        client.copy_now(db1, db2);
+        return getResponse(BuilderFactory.STRING);
+    }
+
+    @Override
+    public Response<List<Object>> statistics() {
+        client.statistics();
+        return getResponse(BuilderFactory.OBJECT_LIST);
+    }
+
+    @Override
+    public Response<String> version() {
+        client.version();
+        return getResponse(BuilderFactory.STRING);
+    }
 
     @Override
     public Response<List<String>> brpop(String... args) {
