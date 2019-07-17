@@ -6,25 +6,6 @@ import com.csnight.jedisql.util.SafeEncoder;
 import java.util.*;
 
 public final class BuilderFactory {
-    public static final Builder<Double> DOUBLE = new Builder<Double>() {
-        @Override
-        public Double build(Object data) {
-            String string = STRING.build(data);
-            if (string == null) return null;
-            try {
-                return Double.valueOf(string);
-            } catch (NumberFormatException e) {
-                if (string.equals("inf") || string.equals("+inf")) return Double.POSITIVE_INFINITY;
-                if (string.equals("-inf")) return Double.NEGATIVE_INFINITY;
-                throw e;
-            }
-        }
-
-        @Override
-        public String toString() {
-            return "double";
-        }
-    };
     public static final Builder<Boolean> BOOLEAN = new Builder<Boolean>() {
         @Override
         public Boolean build(Object data) {
@@ -47,7 +28,6 @@ public final class BuilderFactory {
             return "byte[]";
         }
     };
-
     public static final Builder<Long> LONG = new Builder<Long>() {
         @Override
         public Long build(Object data) {
@@ -72,6 +52,25 @@ public final class BuilderFactory {
         }
 
     };
+    public static final Builder<Double> DOUBLE = new Builder<Double>() {
+        @Override
+        public Double build(Object data) {
+            String string = STRING.build(data);
+            if (string == null) return null;
+            try {
+                return Double.valueOf(string);
+            } catch (NumberFormatException e) {
+                if (string.equals("inf") || string.equals("+inf")) return Double.POSITIVE_INFINITY;
+                if (string.equals("-inf")) return Double.NEGATIVE_INFINITY;
+                throw e;
+            }
+        }
+
+        @Override
+        public String toString() {
+            return "double";
+        }
+    };
     public static final Builder<List<String>> STRING_LIST = new Builder<List<String>>() {
         @Override
         @SuppressWarnings("unchecked")
@@ -86,6 +85,42 @@ public final class BuilderFactory {
                     result.add(null);
                 } else {
                     result.add(SafeEncoder.encode(barray));
+                }
+            }
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "List<String>";
+        }
+
+    };
+    public static final Builder<List<Object>> OBJECT_LIST = new Builder<List<Object>>() {
+        @Override
+        @SuppressWarnings("unchecked")
+        public List<Object> build(Object data) {
+            if (null == data) {
+                return null;
+            }
+            List<Object> l = (List<Object>) data;
+            final ArrayList<Object> result = new ArrayList<Object>(l.size());
+            for (final Object barray : l) {
+                if (barray == null) {
+                    result.add(null);
+                } else if (barray instanceof List) {
+                    List<Object> tmp = (List<Object>) barray;
+                    List<Object> new_list = new ArrayList<>();
+                    for (Object item : tmp) {
+                        if (item instanceof byte[]) {
+                            new_list.add(SafeEncoder.encode((byte[]) item));
+                        } else {
+                            new_list.add(item);
+                        }
+                    }
+                    result.add(new_list);
+                } else if (barray instanceof byte[]) {
+                    result.add(SafeEncoder.encode((byte[]) barray));
                 }
             }
             return result;
