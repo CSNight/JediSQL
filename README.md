@@ -1,6 +1,8 @@
 # JediSQL
 Support SQL on redis with redisql module,this library extend redisql api on jedis source code,add all redisql command as java method 
 
+This library provides all the features of jedis and redisql, and supports the use of redisql in cluster and pipeline environments
+
 **Based on [Jedis](https://github.com/xetorthio/jedis), [jedis-sql](https://github.com/xiao321/jedis-sql) and [JRediSQL](https://github.com/RedBeardLab/JRediSQL)**
 
 ```
