@@ -1040,7 +1040,7 @@ public class BinaryShardedJedis extends Sharded<JediSQL, JedisShardInfo> impleme
     public Object sendCommand(ProtocolCommand cmd, byte[]... args) {
         // default since no sample key provided in JedisCommands interface
         byte[] sampleKey = args.length > 0 ? args[0] : cmd.getRaw();
-        JediSQL j = getShard(args[0]);
+        JediSQL j = getShard(sampleKey);
         return j.sendCommand(cmd, args);
     }
 

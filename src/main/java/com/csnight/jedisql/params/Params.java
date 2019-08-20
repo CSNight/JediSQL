@@ -1,5 +1,6 @@
 package com.csnight.jedisql.params;
 
+import com.csnight.jedisql.Protocol;
 import com.csnight.jedisql.util.SafeEncoder;
 
 import java.util.ArrayList;
@@ -29,7 +30,15 @@ public abstract class Params {
             if (value != null) {
                 if (value instanceof byte[]) {
                     byteParams.add((byte[]) value);
-                } else {
+                } else if (value instanceof Boolean) {
+                    byteParams.add(Protocol.toByteArray((boolean) value));
+                } else if (value instanceof Integer) {
+                    byteParams.add(Protocol.toByteArray((int) value));
+                } else if (value instanceof Long) {
+                    byteParams.add(Protocol.toByteArray((long) value));
+                } else if (value instanceof Double) {
+                    byteParams.add(Protocol.toByteArray((double) value));}
+                else {
                     byteParams.add(SafeEncoder.encode(String.valueOf(value)));
                 }
             }
