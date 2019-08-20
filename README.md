@@ -51,7 +51,7 @@ public class test {
         long start = System.currentTimeMillis();
         pipe.create_statement_now("DB", "st", "INSERT INTO " + table1 + " VALUES(?1,?2)");
         pipe.sync();
-        // insert 8000 hash table into redis table name such as "cats:132131"
+        // insert 1000000 records into redis table name such as "cats:132131"
         for (int i = 0; i < 1000000; i++) {
             pipe.exec_statement_now("DB", "st", "cats:" + i, "AAA");
         }
@@ -63,7 +63,7 @@ public class test {
         start = System.currentTimeMillis();
         pipe.create_statement_now("DB", "std", "SELECT * FROM " + table1);
         pipe.sync();
-        // insert 8000 hash table into redis table name such as "cats:132131"
+        // select all records from redis table
 
         Response<List<Object>> res = pipe.exec_statement_now("DB", "std");
 
