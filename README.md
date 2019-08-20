@@ -6,7 +6,7 @@ This library provides all the features of jedis and redisql, and supports the us
 **Based on [Jedis](https://github.com/xetorthio/jedis), [jedis-sql](https://github.com/xiao321/jedis-sql) and [JRediSQL](https://github.com/RedBeardLab/JRediSQL)**
 
 ```
-        package com.supermap.context;
+package com.supermap.context;
 
 import com.csnight.jedisql.JediSQL;
 import com.csnight.jedisql.Pipeline;
