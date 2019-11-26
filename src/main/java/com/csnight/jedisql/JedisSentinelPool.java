@@ -236,8 +236,13 @@ public class JedisSentinelPool extends JedisPoolAbstract {
     @Override
     protected void returnResource(final JediSQL resource) {
         if (resource != null) {
-            resource.resetState();
-            returnResourceObject(resource);
+            try {
+                resource.resetState();
+                returnResourceObject(resource);
+            } catch (Exception e) {
+                returnBrokenResource(resource);
+                throw new JedisException("Resource is returned to the pool as broken", e);
+            }
         }
     }
 

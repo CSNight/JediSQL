@@ -1918,6 +1918,20 @@ public class BinaryJedis implements BasicCommands, BinaryJedisCommands, MultiKey
         return (score != null ? new Double(score) : null);
     }
 
+    @Override
+    public Set<Tuple> zpopmin(final byte[] key) {
+        checkIsInMultiOrPipeline();
+        client.zpopmin(key);
+        return getTupledSet();
+    }
+
+    @Override
+    public Set<Tuple> zpopmin(final byte[] key, final long count) {
+        checkIsInMultiOrPipeline();
+        client.zpopmin(key, count);
+        return getTupledSet();
+    }
+
     public Transaction multi() {
         client.multi();
         client.getOne(); // expected OK
@@ -1962,12 +1976,14 @@ public class BinaryJedis implements BasicCommands, BinaryJedisCommands, MultiKey
 
     @Override
     public String watch(final byte[]... keys) {
+        checkIsInMultiOrPipeline();
         client.watch(keys);
         return client.getStatusCodeReply();
     }
 
     @Override
     public String unwatch() {
+        checkIsInMultiOrPipeline();
         client.unwatch();
         return client.getStatusCodeReply();
     }
@@ -3245,6 +3261,7 @@ public class BinaryJedis implements BasicCommands, BinaryJedisCommands, MultiKey
      */
     @Override
     public Long persist(final byte[] key) {
+        checkIsInMultiOrPipeline();
         client.persist(key);
         return client.getIntegerReply();
     }
@@ -3291,6 +3308,7 @@ public class BinaryJedis implements BasicCommands, BinaryJedisCommands, MultiKey
      */
     @Override
     public byte[] brpoplpush(final byte[] source, final byte[] destination, final int timeout) {
+        checkIsInMultiOrPipeline();
         client.brpoplpush(source, destination, timeout);
         client.setTimeoutInfinite();
         try {
@@ -3408,9 +3426,10 @@ public class BinaryJedis implements BasicCommands, BinaryJedisCommands, MultiKey
 
     @Override
     public Object eval(final byte[] script, final byte[] keyCount, final byte[]... params) {
+        checkIsInMultiOrPipeline();
+        client.eval(script, keyCount, params);
         client.setTimeoutInfinite();
         try {
-            client.eval(script, keyCount, params);
             return client.getOne();
         } finally {
             client.rollbackTimeout();
@@ -3439,9 +3458,10 @@ public class BinaryJedis implements BasicCommands, BinaryJedisCommands, MultiKey
 
     @Override
     public Object evalsha(final byte[] sha1, final int keyCount, final byte[]... params) {
+        checkIsInMultiOrPipeline();
+        client.evalsha(sha1, keyCount, params);
         client.setTimeoutInfinite();
         try {
-            client.evalsha(sha1, keyCount, params);
             return client.getOne();
         } finally {
             client.rollbackTimeout();
@@ -3748,7 +3768,7 @@ public class BinaryJedis implements BasicCommands, BinaryJedisCommands, MultiKey
         List<Object> result = client.getObjectMultiBulkReply();
         byte[] newcursor = (byte[]) result.get(0);
         List<byte[]> rawResults = (List<byte[]>) result.get(1);
-        return new ScanResult<byte[]>(newcursor, rawResults);
+        return new ScanResult<>(newcursor, rawResults);
     }
 
     @Override
@@ -3763,11 +3783,11 @@ public class BinaryJedis implements BasicCommands, BinaryJedisCommands, MultiKey
         client.hscan(key, cursor, params);
         List<Object> result = client.getObjectMultiBulkReply();
         byte[] newcursor = (byte[]) result.get(0);
-        List<Map.Entry<byte[], byte[]>> results = new ArrayList<Map.Entry<byte[], byte[]>>();
+        List<Map.Entry<byte[], byte[]>> results = new ArrayList<>();
         List<byte[]> rawResults = (List<byte[]>) result.get(1);
         Iterator<byte[]> iterator = rawResults.iterator();
         while (iterator.hasNext()) {
-            results.add(new AbstractMap.SimpleEntry<byte[], byte[]>(iterator.next(), iterator.next()));
+            results.add(new AbstractMap.SimpleEntry<>(iterator.next(), iterator.next()));
         }
         return new ScanResult<>(newcursor, results);
     }
@@ -3933,7 +3953,12 @@ public class BinaryJedis implements BasicCommands, BinaryJedisCommands, MultiKey
     public List<byte[]> xread(int count, long block, Map<byte[], byte[]> streams) {
         checkIsInMultiOrPipeline();
         client.xread(count, block, streams);
-        return client.getBinaryMultiBulkReply();
+        client.setTimeoutInfinite();
+        try {
+            return client.getBinaryMultiBulkReply();
+        } finally {
+            client.rollbackTimeout();
+        }
     }
 
     @Override
@@ -3941,7 +3966,12 @@ public class BinaryJedis implements BasicCommands, BinaryJedisCommands, MultiKey
                                    Map<byte[], byte[]> streams) {
         checkIsInMultiOrPipeline();
         client.xreadGroup(groupname, consumer, count, block, noAck, streams);
-        return client.getBinaryMultiBulkReply();
+        client.setTimeoutInfinite();
+        try {
+            return client.getBinaryMultiBulkReply();
+        } finally {
+            client.rollbackTimeout();
+        }
     }
 
     @Override
@@ -4037,6 +4067,7 @@ public class BinaryJedis implements BasicCommands, BinaryJedisCommands, MultiKey
 
     @Override
     public Object sendCommand(ProtocolCommand cmd, byte[]... args) {
+        checkIsInMultiOrPipeline();
         client.sendCommand(cmd, args);
         return client.getOne();
     }

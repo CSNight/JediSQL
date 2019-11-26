@@ -572,7 +572,17 @@ public class ShardedJedis extends BinaryShardedJedis implements JedisCommands, C
         JediSQL j = getShard(key);
         return j.zscore(key, member);
     }
+    @Override
+    public Set<Tuple> zpopmin(final String key) {
+        JediSQL j = getShard(key);
+        return j.zpopmin(key);
+    }
 
+    @Override
+    public Set<Tuple> zpopmin(final String key, final long count) {
+        JediSQL j = getShard(key);
+        return j.zpopmin(key, count);
+    }
     @Override
     public List<String> sort(final String key) {
         JediSQL j = getShard(key);

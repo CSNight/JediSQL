@@ -258,6 +258,7 @@ public class JediSQL extends BinaryJedis implements JedisCommands, MultiKeyComma
 
     @Override
     public Long unlink(final String key) {
+        checkIsInMultiOrPipeline();
         client.unlink(key);
         return client.getIntegerReply();
     }
@@ -1747,9 +1748,22 @@ public class JediSQL extends BinaryJedis implements JedisCommands, MultiKeyComma
         client.zscore(key, member);
         return BuilderFactory.DOUBLE.build(client.getOne());
     }
+    @Override
+    public Set<Tuple> zpopmin(final String key) {
+        checkIsInMultiOrPipeline();
+        client.zpopmin(key);
+        return getTupledSet();
+    }
 
     @Override
+    public Set<Tuple> zpopmin(final String key, final long count) {
+        checkIsInMultiOrPipeline();
+        client.zpopmin(key, count);
+        return getTupledSet();
+    }
+    @Override
     public String watch(final String... keys) {
+        checkIsInMultiOrPipeline();
         client.watch(keys);
         return client.getStatusCodeReply();
     }
@@ -2682,6 +2696,7 @@ public class JediSQL extends BinaryJedis implements JedisCommands, MultiKeyComma
      */
     @Override
     public Long persist(final String key) {
+        checkIsInMultiOrPipeline();
         client.persist(key);
         return client.getIntegerReply();
     }
@@ -2718,6 +2733,7 @@ public class JediSQL extends BinaryJedis implements JedisCommands, MultiKeyComma
      */
     @Override
     public String brpoplpush(final String source, final String destination, final int timeout) {
+        checkIsInMultiOrPipeline();
         client.brpoplpush(source, destination, timeout);
         client.setTimeoutInfinite();
         try {
@@ -2826,6 +2842,7 @@ public class JediSQL extends BinaryJedis implements JedisCommands, MultiKeyComma
      */
     @Override
     public List<String> configGet(final String pattern) {
+        checkIsInMultiOrPipeline();
         client.configGet(pattern);
         return client.getMultiBulkReply();
     }
@@ -2862,15 +2879,17 @@ public class JediSQL extends BinaryJedis implements JedisCommands, MultiKeyComma
      */
     @Override
     public String configSet(final String parameter, final String value) {
+        checkIsInMultiOrPipeline();
         client.configSet(parameter, value);
         return client.getStatusCodeReply();
     }
 
     @Override
     public Object eval(final String script, final int keyCount, final String... params) {
+        checkIsInMultiOrPipeline();
+        client.eval(script, keyCount, params);
         client.setTimeoutInfinite();
         try {
-            client.eval(script, keyCount, params);
             return getEvalResult();
         } finally {
             client.rollbackTimeout();
@@ -2930,7 +2949,7 @@ public class JediSQL extends BinaryJedis implements JedisCommands, MultiKeyComma
 
         if (result instanceof List<?>) {
             List<?> list = (List<?>) result;
-            List<Object> listResult = new ArrayList<Object>(list.size());
+            List<Object> listResult = new ArrayList<>(list.size());
             for (Object bin : list) {
                 listResult.add(evalResult(bin));
             }
@@ -3305,7 +3324,7 @@ public class JediSQL extends BinaryJedis implements JedisCommands, MultiKeyComma
         client.scan(cursor, params);
         List<Object> result = client.getObjectMultiBulkReply();
         String newcursor = new String((byte[]) result.get(0));
-        List<String> results = new ArrayList<String>();
+        List<String> results = new ArrayList<>();
         List<byte[]> rawResults = (List<byte[]>) result.get(1);
         for (byte[] bs : rawResults) {
             results.add(SafeEncoder.encode(bs));
@@ -3346,7 +3365,7 @@ public class JediSQL extends BinaryJedis implements JedisCommands, MultiKeyComma
         client.sscan(key, cursor, params);
         List<Object> result = client.getObjectMultiBulkReply();
         String newcursor = new String((byte[]) result.get(0));
-        List<String> results = new ArrayList<String>();
+        List<String> results = new ArrayList<>();
         List<byte[]> rawResults = (List<byte[]>) result.get(1);
         for (byte[] bs : rawResults) {
             results.add(SafeEncoder.encode(bs));
@@ -3383,6 +3402,7 @@ public class JediSQL extends BinaryJedis implements JedisCommands, MultiKeyComma
 
     @Override
     public String readonly() {
+        checkIsInMultiOrPipeline();
         client.readonly();
         return client.getStatusCodeReply();
     }
@@ -3711,18 +3731,21 @@ public class JediSQL extends BinaryJedis implements JedisCommands, MultiKeyComma
 
     @Override
     public String moduleLoad(final String path) {
+        checkIsInMultiOrPipeline();
         client.moduleLoad(path);
         return client.getStatusCodeReply();
     }
 
     @Override
     public String moduleUnload(final String name) {
+        checkIsInMultiOrPipeline();
         client.moduleUnload(name);
         return client.getStatusCodeReply();
     }
 
     @Override
     public List<Module> moduleList() {
+        checkIsInMultiOrPipeline();
         client.moduleList();
         return BuilderFactory.MODULE_LIST.build(client.getObjectMultiBulkReply());
     }
@@ -3878,20 +3901,24 @@ public class JediSQL extends BinaryJedis implements JedisCommands, MultiKeyComma
                                                              final boolean noAck, final Entry<String, StreamEntryID>... streams) {
         checkIsInMultiOrPipeline();
         client.xreadGroup(groupname, consumer, count, block, noAck, streams);
+        client.setTimeoutInfinite();
+        try {
+            List<Object> streamsEntries = client.getObjectMultiBulkReply();
+            if (streamsEntries == null) {
+                return null;
+            }
 
-        List<Object> streamsEntries = client.getObjectMultiBulkReply();
-        if (streamsEntries == null) {
-            return null;
+            List<Entry<String, List<StreamEntry>>> result = new ArrayList<>(streamsEntries.size());
+            for (Object streamObj : streamsEntries) {
+                List<Object> stream = (List<Object>) streamObj;
+                String streamId = SafeEncoder.encode((byte[]) stream.get(0));
+                List<StreamEntry> streamEntries = BuilderFactory.STREAM_ENTRY_LIST.build(stream.get(1));
+                result.add(new AbstractMap.SimpleEntry<>(streamId, streamEntries));
+            }
+            return result;
+        } finally {
+            client.rollbackTimeout();
         }
-
-        List<Entry<String, List<StreamEntry>>> result = new ArrayList<>(streamsEntries.size());
-        for (Object streamObj : streamsEntries) {
-            List<Object> stream = (List<Object>) streamObj;
-            String streamId = SafeEncoder.encode((byte[]) stream.get(0));
-            List<StreamEntry> streamEntries = BuilderFactory.STREAM_ENTRY_LIST.build(stream.get(1));
-            result.add(new AbstractMap.SimpleEntry<String, List<StreamEntry>>(streamId, streamEntries));
-        }
-        return result;
     }
 
     @Override
@@ -3908,15 +3935,14 @@ public class JediSQL extends BinaryJedis implements JedisCommands, MultiKeyComma
     @Override
     public List<StreamEntry> xclaim(String key, String group, String consumername, long minIdleTime, long newIdleTime,
                                     int retries, boolean force, StreamEntryID... ids) {
-
         checkIsInMultiOrPipeline();
         client.xclaim(key, group, consumername, minIdleTime, newIdleTime, retries, force, ids);
-
         return BuilderFactory.STREAM_ENTRY_LIST.build(client.getObjectMultiBulkReply());
     }
 
     @Override
     public Object sendCommand(ProtocolCommand cmd, String... args) {
+        checkIsInMultiOrPipeline();
         client.sendCommand(cmd, args);
         return client.getOne();
     }

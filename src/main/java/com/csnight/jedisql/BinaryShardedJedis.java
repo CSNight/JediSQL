@@ -534,7 +534,17 @@ public class BinaryShardedJedis extends Sharded<JediSQL, JedisShardInfo> impleme
         JediSQL j = getShard(key);
         return j.zscore(key, member);
     }
+    @Override
+    public Set<Tuple> zpopmin(final byte[] key) {
+        JediSQL j = getShard(key);
+        return j.zpopmin(key);
+    }
 
+    @Override
+    public Set<Tuple> zpopmin(final byte[] key, final long count) {
+        JediSQL j = getShard(key);
+        return j.zpopmin(key, count);
+    }
     @Override
     public List<byte[]> sort(final byte[] key) {
         JediSQL j = getShard(key);
