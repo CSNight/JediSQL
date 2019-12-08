@@ -1748,6 +1748,7 @@ public class JediSQL extends BinaryJedis implements JedisCommands, MultiKeyComma
         client.zscore(key, member);
         return BuilderFactory.DOUBLE.build(client.getOne());
     }
+
     @Override
     public Set<Tuple> zpopmin(final String key) {
         checkIsInMultiOrPipeline();
@@ -1761,6 +1762,7 @@ public class JediSQL extends BinaryJedis implements JedisCommands, MultiKeyComma
         client.zpopmin(key, count);
         return getTupledSet();
     }
+
     @Override
     public String watch(final String... keys) {
         checkIsInMultiOrPipeline();
