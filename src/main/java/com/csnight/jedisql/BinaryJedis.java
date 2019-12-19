@@ -4073,6 +4073,12 @@ public class BinaryJedis implements BasicCommands, BinaryJedisCommands, MultiKey
         return client.getBinaryMultiBulkReply();
     }
 
+    public List<byte[]> command() {
+        checkIsInMultiOrPipeline();
+        client.command();
+        return client.getBinaryMultiBulkReply();
+    }
+
     @Override
     public Object sendCommand(ProtocolCommand cmd, byte[]... args) {
         checkIsInMultiOrPipeline();

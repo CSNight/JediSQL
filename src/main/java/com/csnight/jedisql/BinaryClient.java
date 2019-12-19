@@ -1459,6 +1459,10 @@ public class BinaryClient extends Connection {
         sendCommand(XCLAIM, arguments.toArray(new byte[arguments.size()][]));
     }
 
+    public void command() {
+        sendCommand(COMMAND);
+    }
+
     public void create_db(byte[] db) {
         sendCommand(RediSQLCommand.CREATE_DB, db);
     }
