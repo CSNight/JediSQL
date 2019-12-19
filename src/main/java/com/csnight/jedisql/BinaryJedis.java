@@ -3073,17 +3073,14 @@ public class BinaryJedis implements BasicCommands, BinaryJedisCommands, MultiKey
     public void monitor(final JedisMonitor jedisMonitor) {
         client.monitor();
         client.getStatusCodeReply();
-        try {
-            jedisMonitor.proceed(client);
-        } finally {
-            client.sendCommand(QUIT);
-            client.rollbackTimeout();
-        }
-
+        jedisMonitor.proceed(client);
     }
 
     public void unmonitor(final JedisMonitor jedisMonitor) {
         jedisMonitor.setBroken(true);
+        client.rollbackTimeout();
+        client.sendCommand(QUIT);
+        client.flush();
     }
 
     /**
