@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * PoolableObjectFactory custom impl.
  */
 class JedisFactory implements PooledObjectFactory<JediSQL> {
-    private final AtomicReference<HostAndPort> hostAndPort = new AtomicReference<HostAndPort>();
+    private final AtomicReference<HostAndPort> hostAndPort = new AtomicReference<>();
     private final int connectionTimeout;
     private final int soTimeout;
     private final String password;
@@ -127,7 +127,7 @@ class JedisFactory implements PooledObjectFactory<JediSQL> {
             throw je;
         }
 
-        return new DefaultPooledObject<JediSQL>(jediSQL);
+        return new DefaultPooledObject<>(jediSQL);
 
     }
 
