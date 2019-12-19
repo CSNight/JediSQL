@@ -16,6 +16,7 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.*;
 
+import static com.csnight.jedisql.Protocol.Command.QUIT;
 import static com.csnight.jedisql.Protocol.toByteArray;
 
 public class BinaryJedis implements BasicCommands, BinaryJedisCommands, MultiKeyBinaryCommands,
@@ -3072,7 +3073,17 @@ public class BinaryJedis implements BasicCommands, BinaryJedisCommands, MultiKey
     public void monitor(final JedisMonitor jedisMonitor) {
         client.monitor();
         client.getStatusCodeReply();
-        jedisMonitor.proceed(client);
+        try {
+            jedisMonitor.proceed(client);
+        } finally {
+            client.sendCommand(QUIT);
+            client.rollbackTimeout();
+        }
+
+    }
+
+    public void unmonitor(final JedisMonitor jedisMonitor) {
+        jedisMonitor.setBroken(true);
     }
 
     /**
