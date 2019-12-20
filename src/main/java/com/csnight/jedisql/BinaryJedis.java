@@ -1963,14 +1963,11 @@ public class BinaryJedis implements BasicCommands, BinaryJedisCommands, MultiKey
             if (transaction != null) {
                 transaction.close();
             }
-
             if (pipeline != null) {
                 pipeline.close();
             }
-
             client.resetState();
         }
-
         transaction = null;
         pipeline = null;
     }
@@ -4073,9 +4070,17 @@ public class BinaryJedis implements BasicCommands, BinaryJedisCommands, MultiKey
         return client.getBinaryMultiBulkReply();
     }
 
+    @Override
     public List<byte[]> command() {
         checkIsInMultiOrPipeline();
         client.command();
+        return client.getBinaryMultiBulkReply();
+    }
+
+    @Override
+    public List<byte[]> command(byte[] key) {
+        checkIsInMultiOrPipeline();
+        client.command(key);
         return client.getBinaryMultiBulkReply();
     }
 

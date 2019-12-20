@@ -1463,6 +1463,10 @@ public class BinaryClient extends Connection {
         sendCommand(COMMAND);
     }
 
+    public void command(byte[] key) {
+        sendCommand(COMMAND, key);
+    }
+
     public void create_db(byte[] db) {
         sendCommand(RediSQLCommand.CREATE_DB, db);
     }
