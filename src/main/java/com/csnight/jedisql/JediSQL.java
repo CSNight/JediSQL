@@ -3792,12 +3792,20 @@ public class JediSQL extends BinaryJedis implements JedisCommands, MultiKeyComma
         client.xlen(key);
         return client.getIntegerReply();
     }
-
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<StreamEntry> xrange(final String key, final StreamEntryID start, final StreamEntryID end, final int count) {
+    public List<StreamEntry> xrange(final String key, final StreamEntryID start, final StreamEntryID end) {
+        checkIsInMultiOrPipeline();
+        client.xrange(key, start, end);
+        return BuilderFactory.STREAM_ENTRY_LIST.build(client.getObjectMultiBulkReply());
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<StreamEntry> xrange(final String key, final StreamEntryID start, final StreamEntryID end, final long count) {
         checkIsInMultiOrPipeline();
         client.xrange(key, start, end, count);
         return BuilderFactory.STREAM_ENTRY_LIST.build(client.getObjectMultiBulkReply());
@@ -3807,7 +3815,7 @@ public class JediSQL extends BinaryJedis implements JedisCommands, MultiKeyComma
      * {@inheritDoc}
      */
     @Override
-    public List<StreamEntry> xrevrange(final String key, final StreamEntryID end, final StreamEntryID start, final int count) {
+    public List<StreamEntry> xrevrange(final String key, final StreamEntryID end, final StreamEntryID start, final long count) {
         checkIsInMultiOrPipeline();
         client.xrevrange(key, end, start, count);
         return BuilderFactory.STREAM_ENTRY_LIST.build(client.getObjectMultiBulkReply());

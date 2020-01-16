@@ -362,9 +362,11 @@ public interface Commands {
 
     void xlen(String key);
 
+    void xrange(String key, StreamEntryID start, StreamEntryID end);
+
     void xrange(String key, StreamEntryID start, StreamEntryID end, long count);
 
-    void xrevrange(String key, StreamEntryID end, StreamEntryID start, int count);
+    void xrevrange(String key, StreamEntryID end, StreamEntryID start, long count);
 
     void xread(int count, long block, Entry<String, StreamEntryID>... streams);
 

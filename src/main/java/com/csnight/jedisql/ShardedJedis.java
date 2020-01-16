@@ -572,6 +572,7 @@ public class ShardedJedis extends BinaryShardedJedis implements JedisCommands, C
         JediSQL j = getShard(key);
         return j.zscore(key, member);
     }
+
     @Override
     public Set<Tuple> zpopmin(final String key) {
         JediSQL j = getShard(key);
@@ -583,6 +584,7 @@ public class ShardedJedis extends BinaryShardedJedis implements JedisCommands, C
         JediSQL j = getShard(key);
         return j.zpopmin(key, count);
     }
+
     @Override
     public List<String> sort(final String key) {
         JediSQL j = getShard(key);
@@ -997,7 +999,13 @@ public class ShardedJedis extends BinaryShardedJedis implements JedisCommands, C
     }
 
     @Override
-    public List<StreamEntry> xrange(String key, StreamEntryID start, StreamEntryID end, int count) {
+    public List<StreamEntry> xrange(String key, StreamEntryID start, StreamEntryID end) {
+        JediSQL j = getShard(key);
+        return j.xrange(key, start, end);
+    }
+
+    @Override
+    public List<StreamEntry> xrange(String key, StreamEntryID start, StreamEntryID end, long count) {
         JediSQL j = getShard(key);
         return j.xrange(key, start, end, count);
     }
@@ -1046,7 +1054,7 @@ public class ShardedJedis extends BinaryShardedJedis implements JedisCommands, C
     }
 
     @Override
-    public List<StreamEntry> xrevrange(String key, StreamEntryID end, StreamEntryID start, int count) {
+    public List<StreamEntry> xrevrange(String key, StreamEntryID end, StreamEntryID start, long count) {
         JediSQL j = getShard(key);
         return j.xrevrange(key, end, start, count);
     }

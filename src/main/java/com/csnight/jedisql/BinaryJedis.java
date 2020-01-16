@@ -3997,6 +3997,13 @@ public class BinaryJedis implements BasicCommands, BinaryJedisCommands, MultiKey
     }
 
     @Override
+    public List<byte[]> xrange(byte[] key, byte[] start, byte[] end) {
+        checkIsInMultiOrPipeline();
+        client.xrange(key, start, end);
+        return client.getBinaryMultiBulkReply();
+    }
+
+    @Override
     public List<byte[]> xrange(byte[] key, byte[] start, byte[] end, long count) {
         checkIsInMultiOrPipeline();
         client.xrange(key, start, end, count);
@@ -4004,7 +4011,7 @@ public class BinaryJedis implements BasicCommands, BinaryJedisCommands, MultiKey
     }
 
     @Override
-    public List<byte[]> xrevrange(byte[] key, byte[] end, byte[] start, int count) {
+    public List<byte[]> xrevrange(byte[] key, byte[] end, byte[] start, long count) {
         checkIsInMultiOrPipeline();
         client.xrevrange(key, end, start, count);
         return client.getBinaryMultiBulkReply();

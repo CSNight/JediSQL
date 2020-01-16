@@ -1307,7 +1307,11 @@ public class BinaryClient extends Connection {
         sendCommand(XRANGE, key, start, end, Keyword.COUNT.raw, toByteArray(count));
     }
 
-    public void xrevrange(final byte[] key, final byte[] end, final byte[] start, final int count) {
+    public void xrange(final byte[] key, final byte[] start, final byte[] end) {
+        sendCommand(XRANGE, key, start, end);
+    }
+
+    public void xrevrange(final byte[] key, final byte[] end, final byte[] start, final long count) {
         sendCommand(XREVRANGE, key, end, start, Keyword.COUNT.raw, toByteArray(count));
     }
 

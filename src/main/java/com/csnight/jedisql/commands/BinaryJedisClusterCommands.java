@@ -326,9 +326,11 @@ public interface BinaryJedisClusterCommands {
 
     Long xlen(final byte[] key);
 
+    List<byte[]> xrange(final byte[] key, final byte[] start, final byte[] end);
+
     List<byte[]> xrange(final byte[] key, final byte[] start, final byte[] end, final long count);
 
-    List<byte[]> xrevrange(final byte[] key, final byte[] end, final byte[] start, final int count);
+    List<byte[]> xrevrange(final byte[] key, final byte[] end, final byte[] start, final long count);
 
     Long xack(final byte[] key, final byte[] group, final byte[]... ids);
 

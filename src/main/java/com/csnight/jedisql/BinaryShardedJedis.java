@@ -534,6 +534,7 @@ public class BinaryShardedJedis extends Sharded<JediSQL, JedisShardInfo> impleme
         JediSQL j = getShard(key);
         return j.zscore(key, member);
     }
+
     @Override
     public Set<Tuple> zpopmin(final byte[] key) {
         JediSQL j = getShard(key);
@@ -545,6 +546,7 @@ public class BinaryShardedJedis extends Sharded<JediSQL, JedisShardInfo> impleme
         JediSQL j = getShard(key);
         return j.zpopmin(key, count);
     }
+
     @Override
     public List<byte[]> sort(final byte[] key) {
         JediSQL j = getShard(key);
@@ -980,13 +982,19 @@ public class BinaryShardedJedis extends Sharded<JediSQL, JedisShardInfo> impleme
     }
 
     @Override
+    public List<byte[]> xrange(byte[] key, byte[] start, byte[] end) {
+        JediSQL j = getShard(key);
+        return j.xrange(key, start, end);
+    }
+
+    @Override
     public List<byte[]> xrange(byte[] key, byte[] start, byte[] end, long count) {
         JediSQL j = getShard(key);
         return j.xrange(key, start, end, count);
     }
 
     @Override
-    public List<byte[]> xrevrange(byte[] key, byte[] end, byte[] start, int count) {
+    public List<byte[]> xrevrange(byte[] key, byte[] end, byte[] start, long count) {
         JediSQL j = getShard(key);
         return j.xrevrange(key, end, start, count);
     }
