@@ -2,6 +2,8 @@ package com.csnight.jedisql.commands;
 
 import com.csnight.jedisql.DebugParams;
 
+import java.util.List;
+
 public interface BasicCommands {
 
     /**
@@ -166,4 +168,8 @@ public interface BasicCommands {
      * @return the number of replicas reached by all the writes performed in the context of the current connection
      */
     Long waitReplicas(int replicas, long timeout);
+
+    List<byte[]> command();
+
+    List<byte[]> command(byte[] key);
 }

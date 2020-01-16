@@ -3386,13 +3386,13 @@ public class JediSQL extends BinaryJedis implements JedisCommands, MultiKeyComma
         client.zscan(key, cursor, params);
         List<Object> result = client.getObjectMultiBulkReply();
         String newcursor = new String((byte[]) result.get(0));
-        List<Tuple> results = new ArrayList<Tuple>();
+        List<Tuple> results = new ArrayList<>();
         List<byte[]> rawResults = (List<byte[]>) result.get(1);
         Iterator<byte[]> iterator = rawResults.iterator();
         while (iterator.hasNext()) {
             results.add(new Tuple(iterator.next(), BuilderFactory.DOUBLE.build(iterator.next())));
         }
-        return new ScanResult<Tuple>(newcursor, results);
+        return new ScanResult<>(newcursor, results);
     }
 
     @Override
