@@ -354,5 +354,4 @@ public interface BinaryRedisPipeline {
 
     Response<Double> hincrByFloat(byte[] key, byte[] field, double increment);
 
-    Response<Object> sendCommand(ProtocolCommand cmd, byte[]... args);
 }
