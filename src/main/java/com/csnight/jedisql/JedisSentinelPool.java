@@ -26,7 +26,7 @@ public class JedisSentinelPool extends JedisPoolAbstract {
     protected int sentinelSoTimeout;
     protected String sentinelPassword;
     protected String sentinelClientName;
-    protected Set<MasterListener> masterListeners = new HashSet<MasterListener>();
+    protected Set<MasterListener> masterListeners = new HashSet<>();
     protected Logger log = LoggerFactory.getLogger(getClass().getName());
     private volatile JedisFactory factory;
     private volatile HostAndPort currentHostMaster;
@@ -127,7 +127,10 @@ public class JedisSentinelPool extends JedisPoolAbstract {
         this.password = password;
         this.database = database;
         this.clientName = clientName;
-
+        this.sentinelConnectionTimeout = sentinelConnectionTimeout;
+        this.sentinelSoTimeout = sentinelSoTimeout;
+        this.sentinelPassword = sentinelPassword;
+        this.sentinelClientName = sentinelClientName;
         HostAndPort master = initSentinels(sentinels, masterName);
         initPool(master);
     }
@@ -179,10 +182,13 @@ public class JedisSentinelPool extends JedisPoolAbstract {
 
             log.debug("Connecting to Sentinel {}", hap);
 
-            JediSQL jediSQL = null;
-            try {
-                jediSQL = new JediSQL(hap);
-
+            try (JediSQL jediSQL = new JediSQL(hap.getHost(), hap.getPort(), sentinelConnectionTimeout, sentinelSoTimeout)) {
+                if (sentinelPassword != null) {
+                    jediSQL.auth(sentinelPassword);
+                }
+                if (sentinelClientName != null) {
+                    jediSQL.clientSetname(sentinelClientName);
+                }
                 List<String> masterAddr = jediSQL.sentinelGetMasterAddrByName(masterName);
 
                 // connected to sentinel...
@@ -202,10 +208,6 @@ public class JedisSentinelPool extends JedisPoolAbstract {
                 log.warn(
                         "Cannot get master address from sentinel running @ {}. Reason: {}. Trying next one.", hap,
                         e.toString());
-            } finally {
-                if (jediSQL != null) {
-                    jediSQL.close();
-                }
             }
         }
 
@@ -322,12 +324,10 @@ public class JedisSentinelPool extends JedisPoolAbstract {
                         break;
                     }
 
-                    /*
-                     * Added code for active refresh
-                     */
+                    // code for active refresh
                     List<String> masterAddr = j.sentinelGetMasterAddrByName(masterName);
                     if (masterAddr == null || masterAddr.size() != 2) {
-                        log.warn("Can not get master addr, master name: {}. Sentinel: {}：{}.", masterName, host, port);
+                        log.warn("Can not get master addr, master name: {}. Sentinel: {}:{}.", masterName, host, port);
                     } else {
                         initPool(toHostAndPort(masterAddr));
                     }
