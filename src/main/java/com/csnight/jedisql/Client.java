@@ -457,6 +457,7 @@ public class Client extends BinaryClient implements Commands {
     public void zscore(final String key, final String member) {
         zscore(SafeEncoder.encode(key), SafeEncoder.encode(member));
     }
+
     @Override
     public void zpopmin(final String key) {
         zpopmin(SafeEncoder.encode(key));
@@ -466,6 +467,7 @@ public class Client extends BinaryClient implements Commands {
     public void zpopmin(final String key, final long count) {
         zpopmin(SafeEncoder.encode(key), count);
     }
+
     @Override
     public void watch(final String... keys) {
         watch(SafeEncoder.encodeMany(keys));
@@ -1131,6 +1133,7 @@ public class Client extends BinaryClient implements Commands {
     public void moduleUnload(final String name) {
         moduleUnload(SafeEncoder.encode(name));
     }
+
     public void aclGetUser(final String name) {
         aclGetUser(SafeEncoder.encode(name));
     }
@@ -1150,6 +1153,7 @@ public class Client extends BinaryClient implements Commands {
     public void aclDelUser(final String name) {
         aclDelUser(SafeEncoder.encode(name));
     }
+
     private HashMap<byte[], Double> convertScoreMembersToBinary(final Map<String, Double> scoreMembers) {
         HashMap<byte[], Double> binaryScoreMembers = new HashMap<>();
         for (Entry<String, Double> entry : scoreMembers.entrySet()) {
@@ -1195,6 +1199,7 @@ public class Client extends BinaryClient implements Commands {
     public void xrange(final String key, final StreamEntryID start, final StreamEntryID end) {
         xrange(SafeEncoder.encode(key), SafeEncoder.encode(start == null ? "-" : start.toString()), SafeEncoder.encode(end == null ? "+" : end.toString()));
     }
+
     @Override
     public void xrange(final String key, final StreamEntryID start, final StreamEntryID end, final long count) {
         xrange(SafeEncoder.encode(key), SafeEncoder.encode(start == null ? "-" : start.toString()), SafeEncoder.encode(end == null ? "+" : end.toString()), count);
@@ -1283,6 +1288,27 @@ public class Client extends BinaryClient implements Commands {
             bids[i] = SafeEncoder.encode(ids[i].toString());
         }
         xclaim(SafeEncoder.encode(key), SafeEncoder.encode(group), SafeEncoder.encode(consumername), minIdleTime, newIdleTime, retries, force, bids);
+    }
+
+    @Override
+    public void xinfoStream(String key) {
+
+        xinfoStream(SafeEncoder.encode(key));
+
+    }
+
+    @Override
+    public void xinfoGroup(String key) {
+
+        xinfoGroup(SafeEncoder.encode(key));
+
+    }
+
+    @Override
+    public void xinfoConsumers(String key, String group) {
+
+        xinfoConsumers(SafeEncoder.encode(key), SafeEncoder.encode(group));
+
     }
 
     public void create_db(String db) {

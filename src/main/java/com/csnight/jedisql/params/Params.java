@@ -37,8 +37,8 @@ public abstract class Params {
                 } else if (value instanceof Long) {
                     byteParams.add(Protocol.toByteArray((long) value));
                 } else if (value instanceof Double) {
-                    byteParams.add(Protocol.toByteArray((double) value));}
-                else {
+                    byteParams.add(Protocol.toByteArray((double) value));
+                } else {
                     byteParams.add(SafeEncoder.encode(String.valueOf(value)));
                 }
             }

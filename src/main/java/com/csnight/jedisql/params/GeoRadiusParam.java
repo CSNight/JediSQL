@@ -32,10 +32,12 @@ public class GeoRadiusParam extends Params {
         addParam(WITHDIST);
         return this;
     }
+
     public GeoRadiusParam withHash() {
         addParam(WITHHASH);
         return this;
     }
+
     public GeoRadiusParam sortAscending() {
         addParam(ASC);
         return this;

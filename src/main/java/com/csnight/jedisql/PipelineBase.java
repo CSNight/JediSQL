@@ -1299,6 +1299,7 @@ public abstract class PipelineBase extends Queable implements BinaryRedisPipelin
         getClient(key).zscore(key, member);
         return getResponse(BuilderFactory.DOUBLE);
     }
+
     @Override
     public Response<Set<Tuple>> zpopmin(final String key) {
         getClient(key).zpopmin(key);
@@ -1310,6 +1311,7 @@ public abstract class PipelineBase extends Queable implements BinaryRedisPipelin
         getClient(key).zpopmin(key, count);
         return getResponse(BuilderFactory.TUPLE_ZSET);
     }
+
     @Override
     public Response<Long> zlexcount(final byte[] key, final byte[] min, final byte[] max) {
         getClient(key).zlexcount(key, min, max);

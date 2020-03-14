@@ -1516,6 +1516,23 @@ public class BinaryClient extends Connection {
         sendCommand(XCLAIM, arguments.toArray(new byte[arguments.size()][]));
     }
 
+    public void xinfoStream(byte[] key) {
+
+        sendCommand(XINFO, Keyword.STREAM.raw, key);
+
+    }
+
+    public void xinfoGroup(byte[] key) {
+
+        sendCommand(XINFO, Keyword.GROUPS.raw, key);
+
+    }
+
+    public void xinfoConsumers(byte[] key, byte[] group) {
+
+        sendCommand(XINFO, Keyword.CONSUMERS.raw, key, group);
+    }
+
     public void command() {
         sendCommand(COMMAND);
     }

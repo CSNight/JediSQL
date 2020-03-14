@@ -2328,10 +2328,12 @@ public class BinaryJedis implements BasicCommands, BinaryJedisCommands, MultiKey
         client.auth(password);
         return client.getStatusCodeReply();
     }
+
     /**
      * Request for authentication with a Redis Server that is using ACL where user are authenticated with
      * username and password.
      * See https://redis.io/topics/acl
+     *
      * @param user
      * @param password
      * @return
@@ -2342,6 +2344,7 @@ public class BinaryJedis implements BasicCommands, BinaryJedisCommands, MultiKey
         client.auth(user, password);
         return client.getStatusCodeReply();
     }
+
     public Pipeline pipelined() {
         pipeline = new Pipeline();
         pipeline.setClient(client);
@@ -3671,6 +3674,7 @@ public class BinaryJedis implements BasicCommands, BinaryJedisCommands, MultiKey
         client.memoryDoctor();
         return client.getBinaryBulkReply();
     }
+
     @Override
     public byte[] aclWhoAmIBinary() {
         checkIsInMultiOrPipeline();
@@ -4177,6 +4181,31 @@ public class BinaryJedis implements BasicCommands, BinaryJedisCommands, MultiKey
         checkIsInMultiOrPipeline();
         client.command(key);
         return client.getBinaryMultiBulkReply();
+    }
+
+    @Override
+    public StreamInfo xinfoStream(byte[] key) {
+        checkIsInMultiOrPipeline();
+        client.xinfoStream(key);
+
+        return BuilderFactory.STREAM_INFO.build(client.getOne());
+
+    }
+
+    @Override
+    public List<StreamGroupInfo> xinfoGroup(byte[] key) {
+        checkIsInMultiOrPipeline();
+        client.xinfoGroup(key);
+
+        return BuilderFactory.STREAM_GROUP_INFO_LIST.build(client.getBinaryMultiBulkReply());
+    }
+
+    @Override
+    public List<StreamConsumersInfo> xinfoConsumers(byte[] key, byte[] group) {
+        checkIsInMultiOrPipeline();
+        client.xinfoConsumers(key, group);
+
+        return BuilderFactory.STREAM_CONSUMERS_INFO_LIST.build(client.getBinaryMultiBulkReply());
     }
 
     @Override

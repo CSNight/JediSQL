@@ -357,5 +357,11 @@ public interface BinaryJedisCommands {
 
     List<byte[]> xclaim(byte[] key, byte[] groupname, byte[] consumername, long minIdleTime, long newIdleTime, int retries, boolean force, byte[][] ids);
 
+    StreamInfo xinfoStream(byte[] key);
+
+    List<StreamGroupInfo> xinfoGroup(byte[] key);
+
+    List<StreamConsumersInfo> xinfoConsumers(byte[] key, byte[] group);
+
     Object sendCommand(ProtocolCommand cmd, byte[]... args);
 }
