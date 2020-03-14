@@ -17,7 +17,6 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.Closeable;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,26 +35,31 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
     public BinaryJedisCluster(Set<HostAndPort> nodes, int timeout) {
         this(nodes, timeout, DEFAULT_MAX_ATTEMPTS, new GenericObjectPoolConfig());
     }
+
     public BinaryJedisCluster(Set<HostAndPort> nodes) {
         this(nodes, DEFAULT_TIMEOUT);
     }
+
     public BinaryJedisCluster(Set<HostAndPort> jedisClusterNode, int timeout, int maxAttempts,
                               final GenericObjectPoolConfig poolConfig) {
         this.connectionHandler = new JedisSlotBasedConnectionHandler(jedisClusterNode, poolConfig,
                 timeout);
         this.maxAttempts = maxAttempts;
     }
+
     public BinaryJedisCluster(Set<HostAndPort> jedisClusterNode, int connectionTimeout,
                               int soTimeout, int maxAttempts, final GenericObjectPoolConfig poolConfig) {
         this.connectionHandler = new JedisSlotBasedConnectionHandler(jedisClusterNode, poolConfig,
                 connectionTimeout, soTimeout);
         this.maxAttempts = maxAttempts;
     }
+
     public BinaryJedisCluster(Set<HostAndPort> jedisClusterNode, int connectionTimeout, int soTimeout, int maxAttempts, String password, GenericObjectPoolConfig poolConfig) {
         this.connectionHandler = new JedisSlotBasedConnectionHandler(jedisClusterNode, poolConfig,
                 connectionTimeout, soTimeout, password);
         this.maxAttempts = maxAttempts;
     }
+
     public BinaryJedisCluster(Set<HostAndPort> jedisClusterNode, int connectionTimeout, int soTimeout, int maxAttempts, String password, String clientName, GenericObjectPoolConfig poolConfig) {
         this.connectionHandler = new JedisSlotBasedConnectionHandler(jedisClusterNode, poolConfig,
                 connectionTimeout, soTimeout, password, clientName);
@@ -560,10 +564,10 @@ public class BinaryJedisCluster implements BinaryJedisClusterCommands,
     }
 
     @Override
-    public Collection<byte[]> hvals(final byte[] key) {
-        return new JedisClusterCommand<Collection<byte[]>>(connectionHandler, maxAttempts) {
+    public List<byte[]> hvals(final byte[] key) {
+        return new JedisClusterCommand<List<byte[]>>(connectionHandler, maxAttempts) {
             @Override
-            public Collection<byte[]> execute(JediSQL connection) {
+            public List<byte[]> execute(JediSQL connection) {
                 return connection.hvals(key);
             }
         }.runBinary(key);

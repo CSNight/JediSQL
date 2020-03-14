@@ -10,7 +10,6 @@ import com.csnight.jedisql.params.ZIncrByParams;
 import com.csnight.jedisql.util.Hashing;
 import com.csnight.jedisql.util.Sharded;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -296,7 +295,7 @@ public class BinaryShardedJedis extends Sharded<JediSQL, JedisShardInfo> impleme
     }
 
     @Override
-    public Collection<byte[]> hvals(final byte[] key) {
+    public List<byte[]> hvals(final byte[] key) {
         JediSQL j = getShard(key);
         return j.hvals(key);
     }
