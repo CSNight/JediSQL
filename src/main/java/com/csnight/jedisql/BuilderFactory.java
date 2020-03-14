@@ -432,6 +432,9 @@ public final class BuilderFactory {
 
                             resp.setCoordinate(new GeoCoordinate(DOUBLE.build(coord.get(0)),
                                     DOUBLE.build(coord.get(1))));
+                        } else if (info instanceof Long) {
+                            // score
+                            resp.setRawScore(LONG.build(info));
                         } else {
                             // distance
                             resp.setDistance(DOUBLE.build(info));
@@ -495,7 +498,9 @@ public final class BuilderFactory {
             }
 
             List<List<Object>> objectList = (List<List<Object>>) data;
-            if (objectList.isEmpty()) { return null; }
+            if (objectList.isEmpty()) {
+                return null;
+            }
 
             AccessControlUser accessControlUser = new AccessControlUser();
 
@@ -503,13 +508,13 @@ public final class BuilderFactory {
             List<Object> flags = objectList.get(1);
             for (Object f : flags) {
                 accessControlUser.addFlag(SafeEncoder.encode((byte[]) f));
-            };
+            }
 
             // passwords
             List<Object> passwords = objectList.get(3);
             for (Object p : passwords) {
                 accessControlUser.addPassword(SafeEncoder.encode((byte[]) p));
-            };
+            }
 
             // commands
             accessControlUser.setCommands(SafeEncoder.encode((byte[]) (Object) objectList.get(5)));
@@ -518,7 +523,7 @@ public final class BuilderFactory {
             List<Object> keys = objectList.get(7);
             for (Object k : keys) {
                 accessControlUser.addKey(SafeEncoder.encode((byte[]) k));
-            };
+            }
 
             return accessControlUser;
         }
@@ -586,7 +591,7 @@ public final class BuilderFactory {
                 Iterator<byte[]> hashIterator = hash.iterator();
                 Map<String, String> map = new HashMap<>(hash.size() / 2);
                 while (hashIterator.hasNext()) {
-                    map.put(SafeEncoder.encode( hashIterator.next()), SafeEncoder.encode( hashIterator.next()));
+                    map.put(SafeEncoder.encode(hashIterator.next()), SafeEncoder.encode(hashIterator.next()));
                 }
                 responses.add(new StreamEntry(entryID, map));
             }
