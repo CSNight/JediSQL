@@ -66,6 +66,8 @@ public final class Protocol {
     private static final String CLUSTERDOWN_PREFIX = "CLUSTERDOWN ";
     private static final String BUSY_PREFIX = "BUSY ";
     private static final String NOSCRIPT_PREFIX = "NOSCRIPT ";
+    private static final String WRONGPASS_PREFIX = "WRONGPASS";
+    private static final String NOPERM_PREFIX = "NOPERM";
 
     private Protocol() {
         // this prevent the class from instantiation
@@ -115,6 +117,10 @@ public final class Protocol {
             throw new JedisBusyException(message);
         } else if (message.startsWith(NOSCRIPT_PREFIX)) {
             throw new JedisNoScriptException(message);
+        } else if (message.startsWith(WRONGPASS_PREFIX)) {
+            throw new JedisAccessControlException(message);
+        } else if (message.startsWith(NOPERM_PREFIX)) {
+            throw new JedisAccessControlException(message);
         }
         throw new JedisDataException(message);
     }
@@ -230,7 +236,7 @@ public final class Protocol {
     }
 
     public static enum Command implements ProtocolCommand {
-        APPEND, ASKING, AUTH, BGREWRITEAOF, BGSAVE, BITCOUNT, BITFIELD, BITOP, BITPOS, BLPOP,
+        ACL, APPEND, ASKING, AUTH, BGREWRITEAOF, BGSAVE, BITCOUNT, BITFIELD, BITOP, BITPOS, BLPOP,
         BRPOP, BRPOPLPUSH, BZPOPMAX, BZPOPMIN, CLIENT, CLUSTER, COMMAND,
         CONFIG, DBSIZE, DEBUG, DECR, DECRBY, DEL, DISCARD, DUMP, ECHO, EVAL, EVALSHA, EXEC, EXISTS,
         EXPIRE, EXPIREAT, FLUSHALL, FLUSHDB, GEOADD, GEODIST, GEOHASH, GEOPOS, GEORADIUS, GEORADIUSBYMEMBER,
@@ -274,7 +280,8 @@ public final class Protocol {
         RESETSTAT, REWRITE, RESET, FLUSH, EXISTS, LOAD, KILL, LEN, REFCOUNT, ENCODING, IDLETIME,
         GETNAME, SETNAME, LIST, MATCH, COUNT, PING, PONG, UNLOAD, REPLACE, KEYS, PAUSE, DOCTOR,
         BLOCK, NOACK, STREAMS, KEY, CREATE, MKSTREAM, SETID, DESTROY, DELCONSUMER, MAXLEN, GROUP,
-        IDLE, TIME, RETRYCOUNT, FORCE;
+        IDLE, TIME, RETRYCOUNT, FORCE, STREAM, GROUPS, CONSUMERS,
+        SETUSER, GETUSER, DELUSER, WHOAMI, CAT, GENPASS, USERS;
 
         public final byte[] raw;
 

@@ -1,5 +1,6 @@
 package com.csnight.jedisql.commands;
 
+import com.csnight.jedisql.AccessControlUser;
 import com.csnight.jedisql.params.ClientKillParams;
 import com.csnight.jedisql.params.MigrateParams;
 import com.csnight.jedisql.util.Slowlog;
@@ -42,4 +43,26 @@ public interface AdvancedJedisCommands {
     String clientSetname(String name);
 
     String memoryDoctor();
+
+    String aclWhoAmI();
+
+    String aclGenPass();
+
+    List<String> aclList();
+
+    List<String> aclUsers();
+
+    AccessControlUser aclGetUser(String name);
+
+    String aclSetUser(String name);
+
+    String aclSetUser(String name, String... keys);
+
+    Long aclDelUser(String name);
+
+    List<String> aclCat();
+
+    List<String> aclCat(String category);
+
+    // TODO: Implements ACL LOAD/SAVE commands
 }

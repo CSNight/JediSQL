@@ -1,5 +1,6 @@
 package com.csnight.jedisql.commands;
 
+import com.csnight.jedisql.AccessControlUser;
 import com.csnight.jedisql.params.ClientKillParams;
 import com.csnight.jedisql.params.MigrateParams;
 
@@ -42,4 +43,26 @@ public interface AdvancedBinaryJedisCommands {
     String clientSetname(byte[] name);
 
     byte[] memoryDoctorBinary();
+
+    byte[] aclWhoAmIBinary();
+
+    byte[] aclGenPassBinary();
+
+    List<byte[]> aclListBinary();
+
+    List<byte[]> aclUsersBinary();
+
+    AccessControlUser aclGetUser(byte[] name);
+
+    String aclSetUser(byte[] name);
+
+    String aclSetUser(byte[] name, byte[]... keys);
+
+    Long aclDelUser(byte[] name);
+
+    List<byte[]> aclCatBinary();
+
+    List<byte[]> aclCat(byte[] category);
+
+    // TODO: Implements ACL LOAD/SAVE commands
 }

@@ -16,6 +16,7 @@ public class JedisShardInfo extends ShardInfo<JediSQL> {
     private int soTimeout;
     private String host;
     private int port;
+    private String user = null;
     private String password = null;
     private String name = null;
     // Default Redis DB
@@ -31,6 +32,7 @@ public class JedisShardInfo extends ShardInfo<JediSQL> {
         if (JedisURIHelper.isValid(uri)) {
             this.host = uri.getHost();
             this.port = uri.getPort();
+            this.user = JedisURIHelper.getUser(uri);
             this.password = JedisURIHelper.getPassword(uri);
             this.db = JedisURIHelper.getDBIndex(uri);
             this.ssl = JedisURIHelper.isRedisSSLScheme(uri);
@@ -168,6 +170,7 @@ public class JedisShardInfo extends ShardInfo<JediSQL> {
 
         this.host = uri.getHost();
         this.port = uri.getPort();
+        this.user = JedisURIHelper.getUser(uri);
         this.password = JedisURIHelper.getPassword(uri);
         this.db = JedisURIHelper.getDBIndex(uri);
         this.ssl = JedisURIHelper.isRedisSSLScheme(uri);
@@ -200,6 +203,14 @@ public class JedisShardInfo extends ShardInfo<JediSQL> {
 
     public void setPassword(String auth) {
         this.password = auth;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
     }
 
     public int getConnectionTimeout() {

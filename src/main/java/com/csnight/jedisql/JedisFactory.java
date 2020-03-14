@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicReference;
 class JedisFactory implements PooledObjectFactory<JediSQL> {
     private final AtomicReference<HostAndPort> hostAndPort = new AtomicReference<>();
     private final int connectionTimeout;
+    private final String user;
     private final int soTimeout;
     private final String password;
     private final int database;
@@ -35,12 +36,27 @@ class JedisFactory implements PooledObjectFactory<JediSQL> {
     }
 
     JedisFactory(final String host, final int port, final int connectionTimeout,
+                 final int soTimeout, final String user, final String password, final int database, final String clientName) {
+        this(host, port, connectionTimeout, soTimeout, user, password, database, clientName,
+                false, null, null, null);
+    }
+
+    JedisFactory(final String host, final int port, final int connectionTimeout,
                  final int soTimeout, final String password, final int database, final String clientName,
+                 final boolean ssl, final SSLSocketFactory sslSocketFactory, final SSLParameters sslParameters,
+                 final HostnameVerifier hostnameVerifier) {
+        this(host, port, connectionTimeout, soTimeout, null, password, database, clientName,
+                ssl, sslSocketFactory, sslParameters, hostnameVerifier);
+    }
+
+    JedisFactory(final String host, final int port, final int connectionTimeout,
+                 final int soTimeout, final String user, final String password, final int database, final String clientName,
                  final boolean ssl, final SSLSocketFactory sslSocketFactory, final SSLParameters sslParameters,
                  final HostnameVerifier hostnameVerifier) {
         this.hostAndPort.set(new HostAndPort(host, port));
         this.connectionTimeout = connectionTimeout;
         this.soTimeout = soTimeout;
+        this.user = user;
         this.password = password;
         this.database = database;
         this.clientName = clientName;
@@ -62,10 +78,10 @@ class JedisFactory implements PooledObjectFactory<JediSQL> {
             throw new InvalidURIException(String.format(
                     "Cannot open Redis connection due invalid URI. %s", uri.toString()));
         }
-
         this.hostAndPort.set(new HostAndPort(uri.getHost(), uri.getPort()));
         this.connectionTimeout = connectionTimeout;
         this.soTimeout = soTimeout;
+        this.user = JedisURIHelper.getUser(uri);
         this.password = JedisURIHelper.getPassword(uri);
         this.database = JedisURIHelper.getDBIndex(uri);
         this.clientName = clientName;
@@ -85,7 +101,6 @@ class JedisFactory implements PooledObjectFactory<JediSQL> {
         if (jedis.getDB() != database) {
             jedis.select(database);
         }
-
     }
 
     @Override
@@ -99,36 +114,33 @@ class JedisFactory implements PooledObjectFactory<JediSQL> {
                 }
                 jedis.disconnect();
             } catch (Exception e) {
-
             }
         }
-
     }
 
     @Override
     public PooledObject<JediSQL> makeObject() throws Exception {
         final HostAndPort hostAndPort = this.hostAndPort.get();
-        final JediSQL jediSQL = new JediSQL(hostAndPort.getHost(), hostAndPort.getPort(), connectionTimeout,
+        final JediSQL jedis = new JediSQL(hostAndPort.getHost(), hostAndPort.getPort(), connectionTimeout,
                 soTimeout, ssl, sslSocketFactory, sslParameters, hostnameVerifier);
-
         try {
-            jediSQL.connect();
-            if (password != null) {
-                jediSQL.auth(password);
+            jedis.connect();
+            if (user != null) {
+                jedis.auth(user, password);
+            } else if (password != null) {
+                jedis.auth(password);
             }
             if (database != 0) {
-                jediSQL.select(database);
+                jedis.select(database);
             }
             if (clientName != null) {
-                jediSQL.clientSetname(clientName);
+                jedis.clientSetname(clientName);
             }
         } catch (JedisException je) {
-            jediSQL.close();
+            jedis.close();
             throw je;
         }
-
-        return new DefaultPooledObject<>(jediSQL);
-
+        return new DefaultPooledObject<JediSQL>(jedis);
     }
 
     @Override
