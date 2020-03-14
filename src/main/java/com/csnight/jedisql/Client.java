@@ -457,6 +457,15 @@ public class Client extends BinaryClient implements Commands {
     public void zscore(final String key, final String member) {
         zscore(SafeEncoder.encode(key), SafeEncoder.encode(member));
     }
+    @Override
+    public void zpopmax(final String key) {
+        zpopmax(SafeEncoder.encode(key));
+    }
+
+    @Override
+    public void zpopmax(final String key, final int count) {
+        zpopmax(SafeEncoder.encode(key), count);
+    }
 
     @Override
     public void zpopmin(final String key) {
