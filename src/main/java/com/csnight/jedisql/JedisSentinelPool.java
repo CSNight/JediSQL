@@ -26,8 +26,8 @@ public class JedisSentinelPool extends JedisPoolAbstract {
     protected int sentinelSoTimeout;
     protected String sentinelPassword;
     protected String sentinelClientName;
-    protected Set<MasterListener> masterListeners = new HashSet<>();
-    protected Logger log = LoggerFactory.getLogger(getClass().getName());
+    protected final Set<MasterListener> masterListeners = new HashSet<>();
+    protected final Logger log = LoggerFactory.getLogger(getClass().getName());
     private volatile JedisFactory factory;
     private volatile HostAndPort currentHostMaster;
 

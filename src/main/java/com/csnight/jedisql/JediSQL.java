@@ -3102,8 +3102,7 @@ public class JediSQL extends BinaryJedis implements JedisCommands, MultiKeyComma
     public List<Map<String, String>> sentinelMasters() {
         client.sentinel(Protocol.SENTINEL_MASTERS);
         final List<Object> reply = client.getObjectMultiBulkReply();
-
-        final List<Map<String, String>> masters = new ArrayList<Map<String, String>>();
+        final List<Map<String, String>> masters = new ArrayList<>();
         for (Object obj : reply) {
             masters.add(BuilderFactory.STRING_MAP.build((List) obj));
         }
@@ -3184,7 +3183,7 @@ public class JediSQL extends BinaryJedis implements JedisCommands, MultiKeyComma
         client.sentinel(Protocol.SENTINEL_SLAVES, masterName);
         final List<Object> reply = client.getObjectMultiBulkReply();
 
-        final List<Map<String, String>> slaves = new ArrayList<Map<String, String>>();
+        final List<Map<String, String>> slaves = new ArrayList<>();
         for (Object obj : reply) {
             slaves.add(BuilderFactory.STRING_MAP.build((List) obj));
         }
@@ -3346,7 +3345,7 @@ public class JediSQL extends BinaryJedis implements JedisCommands, MultiKeyComma
         for (byte[] bs : rawResults) {
             results.add(SafeEncoder.encode(bs));
         }
-        return new ScanResult<String>(newcursor, results);
+        return new ScanResult<>(newcursor, results);
     }
 
     @Override
@@ -3365,10 +3364,10 @@ public class JediSQL extends BinaryJedis implements JedisCommands, MultiKeyComma
         List<byte[]> rawResults = (List<byte[]>) result.get(1);
         Iterator<byte[]> iterator = rawResults.iterator();
         while (iterator.hasNext()) {
-            results.add(new AbstractMap.SimpleEntry<String, String>(SafeEncoder.encode(iterator.next()),
+            results.add(new AbstractMap.SimpleEntry<>(SafeEncoder.encode(iterator.next()),
                     SafeEncoder.encode(iterator.next())));
         }
-        return new ScanResult<Entry<String, String>>(newcursor, results);
+        return new ScanResult<>(newcursor, results);
     }
 
     @Override
@@ -3387,7 +3386,7 @@ public class JediSQL extends BinaryJedis implements JedisCommands, MultiKeyComma
         for (byte[] bs : rawResults) {
             results.add(SafeEncoder.encode(bs));
         }
-        return new ScanResult<String>(newcursor, results);
+        return new ScanResult<>(newcursor, results);
     }
 
     @Override
@@ -3918,7 +3917,7 @@ public class JediSQL extends BinaryJedis implements JedisCommands, MultiKeyComma
                 List<Object> stream = (List<Object>) streamObj;
                 String streamId = SafeEncoder.encode((byte[]) stream.get(0));
                 List<StreamEntry> streamEntries = BuilderFactory.STREAM_ENTRY_LIST.build(stream.get(1));
-                result.add(new AbstractMap.SimpleEntry<String, List<StreamEntry>>(streamId, streamEntries));
+                result.add(new AbstractMap.SimpleEntry<>(streamId, streamEntries));
             }
 
             return result;

@@ -198,7 +198,7 @@ public final class Protocol {
         if (num == -1) {
             return null;
         }
-        final List<Object> ret = new ArrayList<Object>(num);
+        final List<Object> ret = new ArrayList<>(num);
         for (int i = 0; i < num; i++) {
             try {
                 ret.add(process(is));
